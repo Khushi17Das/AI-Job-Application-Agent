@@ -2,8 +2,11 @@
  * AI JOB APPLICATION AGENT — FRONTEND LOGIC
  */
 
-// Dynamically handle API base URL so it works seamlessly on both FastAPI (port 8000) and VS Code Live Server (port 5500/5501)
-const API_BASE = window.location.port === "8000" || window.location.hostname === "" ? "" : "http://127.0.0.1:8000";
+// Handle API Base URL intelligently:
+// If running inside VS Code Live Server (e.g. port 5500/5501), direct requests to local FastAPI server (http://127.0.0.1:8000).
+// On production (Railway.app, Render, etc.) or when served by FastAPI directly, use relative URL ("").
+const isLiveServer = ["5500", "5501", "5502", "5503", "3000", "5173"].includes(window.location.port);
+const API_BASE = isLiveServer ? "http://127.0.0.1:8000" : "";
 
 let currentResumeId = null;
 let currentResumeText = "";
