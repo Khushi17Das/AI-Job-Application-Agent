@@ -1,0 +1,22 @@
+[
+  {
+    "id": "tc_01",
+    "name": "Skill Extraction & Matching Test",
+    "job_description": "We are seeking a Python Developer with experience in FastAPI, PostgreSQL, and Docker. Experience with OpenAI APIs and unit testing is preferred.",
+    "expected_skills": ["Python", "FastAPI", "PostgreSQL", "Docker"]
+  },
+  {
+    "id": "tc_02",
+    "name": "Supported Claim Verification",
+    "resume_text": "Software Engineer with 3 years of Python and FastAPI development experience. Built REST APIs using SQLite.",
+    "answer_text": "I have 3 years of experience developing Python and FastAPI applications, including building REST APIs.",
+    "expected_verified": true
+  },
+  {
+    "id": "tc_03",
+    "name": "Unsupported Claim Verification",
+    "resume_text": "Software Engineer with 3 years of Python and FastAPI development experience. Built REST APIs using SQLite.",
+    "answer_text": "I led a team of 15 engineers managing AWS Kubernetes clusters handling 10 million transactions per second.",
+    "expected_verified": false
+  }
+]

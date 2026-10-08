@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Job Application Agent</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container nav-container">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">AI Job Application Agent</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#section-resume" class="nav-link active">1. CV Upload</a>
+                <a href="#section-job" class="nav-link">2. Job Analysis</a>
+                <a href="#section-match" class="nav-link">3. Match Score</a>
+                <a href="#section-answers" class="nav-link">4. Tailored Answers</a>
+                <a href="#section-tracker" class="nav-link">5. Tracker</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container main-content">
+        <!-- Toast / Alert notification container -->
+        <div id="toast-container" class="toast-container"></div>
+
+        <!-- HERO BANNER -->
+        <section class="hero-section">
+            <h1>Automate & Elevate Your Job Applications</h1>
+            <p>Upload your CV, paste a job description, analyze your match score, generate grounded answers, and verify claims in seconds.</p>
+        </section>
+
+        <!-- DASHBOARD STATS OVERVIEW -->
+        <section class="stats-grid" id="dashboard-stats">
+            <div class="stat-card">
+                <span class="stat-value" id="stat-total">0</span>
+                <span class="stat-label">Total Applications</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value text-blue" id="stat-saved">0</span>
+                <span class="stat-label">Saved</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value text-purple" id="stat-applied">0</span>
+                <span class="stat-label">Applied</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value text-green" id="stat-interview">0</span>
+                <span class="stat-label">Interview</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value text-red" id="stat-rejected">0</span>
+                <span class="stat-label">Rejected</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value text-amber" id="stat-offer">0</span>
+                <span class="stat-label">Offer</span>
+            </div>
+        </section>
+
+        <!-- SECTION 1: RESUME UPLOAD -->
+        <section id="section-resume" class="card-section">
+            <div class="section-header">
+                <h2><span class="step-num">1</span> Upload Candidate CV</h2>
+                <span class="badge badge-info">PDF or TXT</span>
+            </div>
+            <div class="upload-dropzone" id="dropzone">
+                <input type="file" id="cv-file-input" accept=".pdf,.txt" style="display: none;">
+                <div class="dropzone-content" id="dropzone-content">
+                    <div class="upload-icon">📄</div>
+                    <p class="dropzone-text">Drag & drop your CV here, or <button type="button" class="btn-link" onclick="document.getElementById('cv-file-input').click()">Browse File</button></p>
+                    <span class="dropzone-sub">Supported Formats: PDF, TXT (Max 5MB)</span>
+                </div>
+            </div>
+            <!-- Upload status display -->
+            <div id="cv-status-box" class="status-box hidden">
+                <div class="status-badge text-green">✓ Resume uploaded successfully</div>
+                <div class="cv-info">
+                    <p><strong>Filename:</strong> <span id="cv-filename">--</span></p>
+                    <p><strong>Length:</strong> <span id="cv-char-count">0</span> characters</p>
+                    <details class="cv-snippet-details">
+                        <summary>View Extracted Text Snippet</summary>
+                        <pre id="cv-snippet-text" class="snippet-preview"></pre>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: JOB DESCRIPTION & REQUIREMENT EXTRACTION -->
+        <section id="section-job" class="card-section">
+            <div class="section-header">
+                <h2><span class="step-num">2</span> Target Job Description</h2>
+            </div>
+            <div class="form-group">
+                <label for="job-title-input">Target Role & Company (Optional)</label>
+                <div class="grid-2">
+                    <input type="text" id="job-title-input" class="form-control" placeholder="e.g. AI / ML Engineer">
+                    <input type="text" id="company-name-input" class="form-control" placeholder="e.g. Acme Tech Corp">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="jd-text">Paste Job Description *</label>
+                <textarea id="jd-text" class="form-control textarea-lg" placeholder="Paste full job description requirements, responsibilities, and qualifications here..."></textarea>
+            </div>
+            <div class="action-bar">
+                <button type="button" id="btn-analyze-job" class="btn btn-primary">
+                    <span class="btn-spinner hidden" id="spinner-job"></span>
+                    <span>Analyze Job Description</span>
+                </button>
+            </div>
+
+            <!-- Job Requirements Output -->
+            <div id="job-analysis-output" class="output-container hidden">
+                <h3 class="output-title">Extracted Job Requirements</h3>
+                <div class="req-grid">
+                    <div class="req-card">
+                        <h4>Role</h4>
+                        <p id="req-role" class="badge-pill bg-dark">--</p>
+                    </div>
+                    <div class="req-card">
+                        <h4>Required Skills</h4>
+                        <div id="req-required-skills" class="tag-cloud"></div>
+                    </div>
+                    <div class="req-card">
+                        <h4>Preferred Skills</h4>
+                        <div id="req-preferred-skills" class="tag-cloud"></div>
+                    </div>
+                    <div class="req-card">
+                        <h4>Experience Requirements</h4>
+                        <ul id="req-experience-list" class="styled-list"></ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: MATCH ANALYSIS & SKILL GAP -->
+        <section id="section-match" class="card-section">
+            <div class="section-header">
+                <h2><span class="step-num">3</span> CV / Job Match & Skill Gap Analysis</h2>
+            </div>
+            <div class="action-bar">
+                <button type="button" id="btn-analyze-match" class="btn btn-secondary">
+                    <span class="btn-spinner hidden" id="spinner-match"></span>
+                    <span>Calculate Match & Skill Gap</span>
+                </button>
+            </div>
+
+            <div id="match-output" class="output-container hidden">
+                <div class="match-score-header">
+                    <div class="score-circle-container">
+                        <div class="score-circle" id="score-circle">
+                            <span class="score-value" id="match-score-num">0%</span>
+                        </div>
+                    </div>
+                    <div class="score-meta">
+                        <h3>Match Assessment</h3>
+                        <p class="meta-note">AI-generated baseline comparison between uploaded CV and job requirements.</p>
+                        <button type="button" id="btn-quick-save-app" class="btn btn-sm btn-outline mt-2">
+                            📌 Track this Job in Application Tracker
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Skill Gap Section -->
+                <div class="skill-gap-section mt-4">
+                    <h3>Skill Gap Analysis</h3>
+                    <div class="grid-3 mt-3">
+                        <div class="skill-category-card gap-strong">
+                            <h4>Strong Match <span class="badge badge-success">✓ CV Confirmed</span></h4>
+                            <div id="gap-strong-list" class="tag-cloud"></div>
+                        </div>
+                        <div class="skill-category-card gap-partial">
+                            <h4>Partial Match <span class="badge badge-warning">~ Related Experience</span></h4>
+                            <div id="gap-partial-list" class="tag-cloud"></div>
+                        </div>
+                        <div class="skill-category-card gap-missing">
+                            <h4>Missing Skills <span class="badge badge-danger">✗ Not Found</span></h4>
+                            <div id="gap-missing-list" class="tag-cloud"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Relevant Experience & Key Highlights -->
+                <div class="mt-4">
+                    <h3>Relevant Experience Highlights</h3>
+                    <ul id="relevant-exp-list" class="styled-list mt-2"></ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: TAILORED APPLICATION ANSWERS & CLAIM VERIFICATION -->
+        <section id="section-answers" class="card-section">
+            <div class="section-header">
+                <h2><span class="step-num">4</span> Tailored Answers & Claim Verifier</h2>
+                <span class="badge badge-info">100% Grounded in CV</span>
+            </div>
+            <p class="section-subtitle">Generate custom application responses and verify that no unsupported claims or false experience were created by AI.</p>
+            
+            <div class="action-bar mb-4">
+                <button type="button" id="btn-generate-all-answers" class="btn btn-primary">
+                    <span class="btn-spinner hidden" id="spinner-answers"></span>
+                    <span>Generate All Tailored Answers</span>
+                </button>
+            </div>
+
+            <div id="answers-container" class="answers-grid">
+                <!-- Answer Card A -->
+                <div class="answer-card">
+                    <div class="answer-card-header">
+                        <h3>A. Why are you a good fit?</h3>
+                        <div class="card-actions">
+                            <button type="button" class="btn btn-sm btn-verify" onclick="verifyAnswer('ans-fit', 'badge-fit')">
+                                🔍 Verify Claims
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="ans-fit" class="form-control textarea-md" placeholder="Generated response will appear here..."></textarea>
+                    <div id="badge-fit" class="verify-result hidden"></div>
+                </div>
+
+                <!-- Answer Card B -->
+                <div class="answer-card">
+                    <div class="answer-card-header">
+                        <h3>B. Describe your relevant experience</h3>
+                        <div class="card-actions">
+                            <button type="button" class="btn btn-sm btn-verify" onclick="verifyAnswer('ans-exp', 'badge-exp')">
+                                🔍 Verify Claims
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="ans-exp" class="form-control textarea-md" placeholder="Generated response will appear here..."></textarea>
+                    <div id="badge-exp" class="verify-result hidden"></div>
+                </div>
+
+                <!-- Answer Card C -->
+                <div class="answer-card">
+                    <div class="answer-card-header">
+                        <h3>C. Describe one relevant project</h3>
+                        <div class="card-actions">
+                            <button type="button" class="btn btn-sm btn-verify" onclick="verifyAnswer('ans-project', 'badge-project')">
+                                🔍 Verify Claims
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="ans-project" class="form-control textarea-md" placeholder="Generated response will appear here..."></textarea>
+                    <div id="badge-project" class="verify-result hidden"></div>
+                </div>
+
+                <!-- Answer Card D -->
+                <div class="answer-card">
+                    <div class="answer-card-header">
+                        <h3>D. Why do you want this role?</h3>
+                        <div class="card-actions">
+                            <button type="button" class="btn btn-sm btn-verify" onclick="verifyAnswer('ans-role', 'badge-role')">
+                                🔍 Verify Claims
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="ans-role" class="form-control textarea-md" placeholder="Generated response will appear here..."></textarea>
+                    <div id="badge-role" class="verify-result hidden"></div>
+                </div>
+
+                <!-- Answer Card E -->
+                <div class="answer-card">
+                    <div class="answer-card-header">
+                        <h3>E. Short recruiter / application message</h3>
+                        <div class="card-actions">
+                            <button type="button" class="btn btn-sm btn-verify" onclick="verifyAnswer('ans-message', 'badge-message')">
+                                🔍 Verify Claims
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="ans-message" class="form-control textarea-md" placeholder="Generated message will appear here..."></textarea>
+                    <div id="badge-message" class="verify-result hidden"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: APPLICATION TRACKER -->
+        <section id="section-tracker" class="card-section">
+            <div class="section-header">
+                <h2><span class="step-num">5</span> Job Application Tracker</h2>
+                <button type="button" class="btn btn-sm btn-primary" onclick="toggleNewAppModal(true)">+ Add Application</button>
+            </div>
+
+            <div class="table-responsive mt-3">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Company</th>
+                            <th>Role</th>
+                            <th>Score</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="app-table-body">
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No application records found. Add one above!</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- MODAL FOR CREATING / EDITING APPLICATION -->
+        <div id="app-modal" class="modal-backdrop hidden">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h3 id="modal-title">Track New Application</h3>
+                    <button type="button" class="btn-close" onclick="toggleNewAppModal(false)">&times;</button>
+                </div>
+                <form id="app-form" onsubmit="saveApplication(event)">
+                    <input type="hidden" id="form-app-id">
+                    <div class="form-group">
+                        <label for="form-company">Company Name *</label>
+                        <input type="text" id="form-company" class="form-control" required placeholder="e.g. Google">
+                    </div>
+                    <div class="form-group">
+                        <label for="form-role">Job Title *</label>
+                        <input type="text" id="form-role" class="form-control" required placeholder="e.g. Senior Backend Engineer">
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="form-url">Job URL (Optional)</label>
+                            <input type="url" id="form-url" class="form-control" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label for="form-score">Match Score (%)</label>
+                            <input type="number" id="form-score" class="form-control" min="0" max="100" placeholder="e.g. 85">
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="form-status">Status</label>
+                            <select id="form-status" class="form-control">
+                                <option value="Saved">Saved</option>
+                                <option value="Applied">Applied</option>
+                                <option value="Interview">Interview</option>
+                                <option value="Rejected">Rejected</option>
+                                <option value="Offer">Offer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="form-date">Date Applied</label>
+                            <input type="date" id="form-date" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="form-notes">Notes</label>
+                        <textarea id="form-notes" class="form-control textarea-sm" placeholder="Key contact names, salary info, interview feedback..."></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline" onclick="toggleNewAppModal(false)">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Entry</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p>AI Job Application Agent &bull; FastAPI + OpenAI + SQLite</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
