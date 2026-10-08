@@ -2,11 +2,15 @@
  * AI JOB APPLICATION AGENT — FRONTEND LOGIC
  */
 
-// Handle API Base URL intelligently:
-// If running inside VS Code Live Server (e.g. port 5500/5501), direct requests to local FastAPI server (http://127.0.0.1:8000).
-// On production (Railway.app, Render, etc.) or when served by FastAPI directly, use relative URL ("").
-const isLiveServer = ["5500", "5501", "5502", "5503", "3000", "5173"].includes(window.location.port);
-const API_BASE = isLiveServer ? "http://127.0.0.1:8000" : "";
+// Rock-solid API Base detection:
+// Only use http://127.0.0.1:8000 if explicitly running on local machine via Live Server (port 5500/5501).
+// On Railway.app or any deployed server (https://...up.railway.app), ALWAYS use relative path ("").
+const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+const isLiveServerPort = ["5500", "5501", "5502", "5503", "3000", "5173"].includes(window.location.port);
+
+const API_BASE = (isLocalhost && isLiveServerPort) ? "http://127.0.0.1:8000" : "";
+
+console.log("AI Job Application Agent loaded. API_BASE:", API_BASE || "(relative root)");
 
 let currentResumeId = null;
 let currentResumeText = "";
